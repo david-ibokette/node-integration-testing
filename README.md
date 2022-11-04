@@ -28,6 +28,11 @@
 - [`index.ts`](index.ts) entry point to a simple todo management Node.js API
 - [`docker-compose.yml`](docker-compose.yml) to start the backend for development
 
+# Testing
+
+- `yarn ts-node node_modules/jasmine/bin/jasmine --random=false index.test.ts # running in testcontainers!` 
+
 # Credits
 
 <div>Icons made by <a href="https://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
+
