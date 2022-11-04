@@ -1,0 +1,14 @@
+name: test
+on: [push, pull_request]
+jobs:
+  integration-tests:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: yarn install --prefer-offline --frozen-lockfile
+
+      - name: Run integration tests
+        run: yarn ts-node node_modules/jasmine/bin/jasmine --random=false index.test.ts
