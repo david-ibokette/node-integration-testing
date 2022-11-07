@@ -1,5 +1,6 @@
 import * as bodyParser from 'body-parser'
 import express from 'express'
+const {execSync} = require('child_process');
 
 import * as database from './database'
 
@@ -43,6 +44,7 @@ app.get('/todos', async (_req, res) => {
 
 async function main() {
   try {
+    // execSync('sleep 10')
     console.log("Initializing DB")
     await database.initialize()
     console.log("Done Initializing DB, about to listen")

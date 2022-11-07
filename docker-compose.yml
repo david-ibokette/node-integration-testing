@@ -3,7 +3,7 @@ services:
   mysql:
     image: mysql:8
     ports:
-      - 3306:3306
+      - 3306
     environment:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: db
@@ -18,9 +18,11 @@ services:
       - ./package.json:/package.json
       - ./database.ts:/database.ts
       - ./index.ts:/index.ts
+      - ./wait-for-it.sh:/wait-for-it.sh
     ports:
-      - 3000:3000
-    command: yarn run ts-node-dev index
+      - 3000
+#    command: yarn run ts-node-dev index
+    command: [./wait-for-it.sh, 'mysql:3306', '--', 'yarn', 'run', 'ts-node-dev', 'index']
     env_file: .env.development
     working_dir: /
     depends_on:

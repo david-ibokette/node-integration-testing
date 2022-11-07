@@ -10,11 +10,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Install dependencies
-        run: |
-          yarn policies set-version
-          yarn install --prefer-offline
+        run: yarn install --prefer-offline
 
       - name: Run integration tests
-        run: |
-          yarn policies set-version
-          yarn ts-node node_modules/jasmine/bin/jasmine --random=false index.test.ts
+        run: yarn ts-node node_modules/jasmine/bin/jasmine --random=false index.test.ts

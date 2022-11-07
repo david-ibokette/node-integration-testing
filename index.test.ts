@@ -1,6 +1,11 @@
-import {GenericContainer, Network, StartedNetwork, StartedTestContainer} from "testcontainers";
+import {GenericContainer, Network, StartedNetwork, StartedTestContainer, Wait} from "testcontainers";
 import {Todo, TodoStatus} from "./index";
 import axios from "axios";
+import {
+    StartedDockerComposeEnvironment
+} from "testcontainers/dist/docker-compose-environment/started-docker-compose-environment";
+const path = require("path");
+const { DockerComposeEnvironment } = require("testcontainers");
 
 describe('test suite', () => {
 
@@ -16,59 +21,27 @@ describe('test suite', () => {
 
     const todo1: Todo = {id: 1, text: text1, status: TodoStatus.Unchecked}
     const todo2: Todo = {id: 2, text: text2, status: TodoStatus.Unchecked}
+    let environment: StartedDockerComposeEnvironment;
 
     beforeAll(async () => {
-        console.log("network")
-        network = await new Network({name: 'test'}).start()
+        const composeFilePath = path.resolve(__dirname, "");
+        const composeFile = "docker-compose.yml";
 
-        console.log("mysql")
-        mysqlContainer = await new GenericContainer('mysql:8')
-            .withName('test_mysql')
-            .withNetworkAliases('test_mysql')
-            .withExposedPorts(3306)
-            .withEnvironment({
-                MYSQL_ROOT_PASSWORD: "password",
-                MYSQL_DATABASE: "test",
-            })
-            .withNetwork(network)
-            .start()
-
-        console.log("api")
-        apiContainer = await new GenericContainer('node:14')
-            .withExposedPorts(3000)
+        environment = await new DockerComposeEnvironment(composeFilePath, composeFile)
             .withEnvironment({
                 MYSQL_HOST: "test_mysql",
                 MYSQL_PORT: "3306",
                 MYSQL_USER: "root",
                 MYSQL_DATABASE: "test",
                 MYSQL_PASSWORD: "password",
+                MYSQL_ROOT_PASSWORD: "password",
             })
-            .withBindMounts([
-                {
-                    // source: "node_modules",
-                    source: "/Users/dibokette/IdeaProjects/node-integration-testing/node_modules",
-                    target:"/node_modules"
-                }, {
-                    // source: "tsconfig.json",
-                    source: "/Users/dibokette/IdeaProjects/node-integration-testing/tsconfig.json",
-                    target:"/tsconfig.json",
-                }, {
-                    // source: "package.json",
-                    source: "/Users/dibokette/IdeaProjects/node-integration-testing/package.json",
-                    target:"/package.json",
-                }, {
-                    // source: "database.ts",
-                    source: "/Users/dibokette/IdeaProjects/node-integration-testing/database.ts",
-                    target:"/database.ts",
-                }, {
-                    // source: "index.ts",
-                    source: "/Users/dibokette/IdeaProjects/node-integration-testing/index.ts",
-                    target:"/index.ts",
-                }
-            ])
-            .withCommand(['yarn', 'run', 'ts-node-dev', 'index'])
-            .withNetwork(network)
-            .start()
+            .withWaitStrategy("mysql-1", Wait.forLogMessage("ready for connections"))
+            .withWaitStrategy("api-1", Wait.forLogMessage("about to listen"))
+            .up();
+
+        mysqlContainer = environment.getContainer('mysql-1')
+        apiContainer = environment.getContainer('api-1')
 
         apiUrl = `http://${apiContainer.getHost()}:${apiContainer.getMappedPort(3000)}`
 
@@ -82,11 +55,12 @@ describe('test suite', () => {
 
     it('placeholder', async () => {
     })
-    // afterAll(async () => {
-    //     await apiContainer.stop()
-    //     await mysqlContainer.stop()
-    //     await network.stop()
-    // })
+    afterAll(async () => {
+        // await apiContainer.stop()
+        // await mysqlContainer.stop()
+        // await network.stop()
+        await environment.down()
+    })
 
     it('adds new todos', async () => {
         const response1 = await axios.post(`${apiUrl}/add-todo`, {text: text1})
