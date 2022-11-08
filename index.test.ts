@@ -40,8 +40,17 @@ describe('test suite', () => {
             .withWaitStrategy("api-1", Wait.forLogMessage("about to listen"))
             .up();
 
-        mysqlContainer = environment.getContainer('mysql-1')
-        apiContainer = environment.getContainer('api-1')
+        try {
+            mysqlContainer = environment.getContainer('mysql_1')
+        } catch (e) {
+            mysqlContainer = environment.getContainer('mysql-1')
+        }
+
+        try {
+            apiContainer = environment.getContainer('api_1')
+        } catch (e) {
+            apiContainer = environment.getContainer('api-1')
+        }
 
         apiUrl = `http://${apiContainer.getHost()}:${apiContainer.getMappedPort(3000)}`
 
