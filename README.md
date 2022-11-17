@@ -1,4 +1,10 @@
 <div align="center">
+  <h1>This is a copy of the repo from the below youtube tutorial. My repo has considerable deviations from the original author's repo for a few reasons:</h1>
+  <div>1) The original repo used a version of the testcontainers-node API which was quite old. Instead of trying to fish out what older version to use, I simply applied the code to the newer version - which had some significant differneces.</div>
+  <div>2) yarn versions also seemed to be off when trying Github actions.</div>
+</div>
+<hr/>
+<div align="center">
   <a href="https://github.com/flolu/auth">
     <img width="100px" height="auto" src="./.github/check.png" />
   </a>
